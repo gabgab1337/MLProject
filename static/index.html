@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Song recommender</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&display=swap');
+        body{
+            background-color: #333;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 14px;
+            color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            text-align: center;
+            margin-top: 100px;
+        }
+        input {
+            width: 300px;
+            height: 30px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            padding: 5px;
+            font-size: 18px;
+            color: #333;
+        }
+        button {
+            width: 100px;
+            height: 30px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            padding: 5px;
+            font-size: 18px;
+            color: #333;
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+        #recommendations {
+            margin-top: 50px;
+            font-size: 24px;
+        }
+        a {
+            color: #f3efbf;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #cdc888;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>SONG RECOMMENDER</h1>
+    <h3>Enter a song name and get recommendations!</h3>
+    <div class="container">
+        <label for="inputText">Song name:</label><br>
+        <input type="text" id="inputText">
+        <br>
+        <button onclick="getRecommendations()">GET</button>
+        <script>
+        function getRecommendations() {
+            var song = document.getElementById('inputText').value;
+            fetch('/spotify-token')
+            .then(response => response.json())
+            .then(data => {
+                var spotifyToken = data.access_token;
+                fetch('/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ song: song })
+                })
+                .then(response => response.text())
+                .then(recommendation => {
+                    fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(recommendation)}&type=track&limit=1`, {
+                        headers: {
+                            'Authorization': 'Bearer ' + spotifyToken
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.tracks.items.length > 0) {
+                            var songLink = data.tracks.items[0].external_urls.spotify;
+                            var recommendationsHTML = `<p><a href="${songLink}" target="_blank">LISTEN ON SPOTIFY</a></p>`;
+                            document.getElementById('recommendations').innerHTML = recommendation.replace(/"/g, '');
+                            document.getElementById('spoti').innerHTML = recommendationsHTML;
+                        }
+                    });
+                });
+            });
+        }
+        </script>
+        <div id="recommendations"></div>
+        <div id="spoti"></div>
+    </div>
+</body>
+</html>
