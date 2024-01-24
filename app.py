@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 @app.route('/spotify-token', methods=['GET'])
 def spotify_token():
-    clientId = '2110b23bb83c4f6cb18f91ecb74faced'
-    clientSecret = '9bc14d46bc6e4fd7ad8462990dbaebe5'
+    clientId = 'YOUR_ID'
+    clientSecret = 'YOUR_SECRET'
     auth = base64.b64encode(f'{clientId}:{clientSecret}'.encode('utf-8')).decode('utf-8')
     headers = {
         'Authorization': f'Basic {auth}',
